@@ -141,9 +141,10 @@ const findSpaceAtRingSector = (ring, initialSector) => {
 };
 
 // Returns only the topmost spaces visible at any given ring/sector
-const getTopmostSpaces = (ring1Angle, ring2Angle, ring3Angle) => {
+const getTopmostSpaces = (ring1Angle, ring2Angle, ring3Angle, visibleDials) => {
    const grid = {};
    SPACES.forEach(space => {
+      if (visibleDials && !visibleDials.includes(space.dial)) return;
       const pSec = getPhysicalSector(space, ring1Angle, ring2Angle, ring3Angle);
       const key = `${space.ring}-${pSec}`;
       if (!grid[key] || grid[key].dial < space.dial) {
@@ -2019,7 +2020,7 @@ export default function App() {
                      const imgUrl = dialNum === 1 ? IMAGES.ring1 : dialNum === 2 ? IMAGES.ring2 : dialNum === 3 ? IMAGES.ring3 : null;
                      
                      // Get all topmost spaces across the entire board
-                     const topmostSpaces = getTopmostSpaces(ring1Angle, ring2Angle, ring3Angle);
+                     const topmostSpaces = getTopmostSpaces(ring1Angle, ring2Angle, ring3Angle, visibleDials);
                      
                      // Filter to only render the nodes that belong to THIS dial AND are topmost!
                      const dialSpaces = topmostSpaces.filter(s => s.dial === dialNum);
