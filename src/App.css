@@ -1,0 +1,98 @@
+/* Custom styling for App */
+
+.animate-spin-slow {
+  animation: spin 30s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.card-hover-scale {
+  transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.2s ease;
+}
+
+.card-hover-scale:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 229, 255, 0.2);
+  border-color: var(--neon-cyan) !important;
+}
+
+/* Gold glow pulse for card tuck selection mode */
+@keyframes gold-pulse {
+  0% {
+    box-shadow: 0 0 4px var(--neon-gold), inset 0 0 2px var(--neon-gold);
+    border-color: var(--neon-gold);
+  }
+  50% {
+    box-shadow: 0 0 18px var(--neon-gold), 0 0 4px var(--neon-gold);
+    border-color: #ffe082;
+  }
+  100% {
+    box-shadow: 0 0 4px var(--neon-gold), inset 0 0 2px var(--neon-gold);
+    border-color: var(--neon-gold);
+  }
+}
+
+.gold-glow-pulse {
+  animation: gold-pulse 1.5s infinite ease-in-out;
+}
+
+/* Glassmorphic glowing blue data token styling */
+.data-token-blue {
+  background: radial-gradient(circle at 35% 35%, rgba(0, 229, 255, 0.95) 0%, rgba(0, 145, 234, 0.85) 50%, rgba(1, 87, 155, 0.95) 100%);
+  border: 1px solid #e0f7fa;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 229, 255, 0.7), 0 0 12px rgba(0, 229, 255, 0.5), inset 0 2px 3px rgba(255,255,255,0.6);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.data-token-blue::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 15%;
+  width: 35%;
+  height: 35%;
+  background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 80%);
+  border-radius: 50%;
+}
+
+.data-token-blue:hover {
+  transform: translate(-50%, -50%) scale(1.2) !important;
+  box-shadow: 0 4px 12px rgba(0, 229, 255, 0.9), 0 0 20px rgba(0, 229, 255, 0.7), inset 0 2px 3px rgba(255,255,255,0.8);
+}
+
+/* Tucked mini-cards overlapping layout */
+.tucked-card {
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 1.5px solid rgba(255, 170, 0, 0.4);
+}
+
+.tucked-card:hover {
+  transform: translateY(-20px) scale(1.05) !important;
+  z-index: 100 !important;
+  border-color: var(--neon-cyan);
+  box-shadow: 0 10px 20px rgba(0, 229, 255, 0.4), 0 0 10px rgba(0, 229, 255, 0.2);
+}
+
+/* Pulsing highlight for selected probe movement options */
+@keyframes pulse-slow {
+  0% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 0.75;
+  }
+}
+
+.pulse-slow {
+  animation: pulse-slow 1.2s infinite alternate ease-in-out;
+}
+
