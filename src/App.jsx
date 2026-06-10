@@ -183,8 +183,29 @@ const getTopmostSpaces = (ring1Angle, ring2Angle, ring3Angle) => {
 
 export default function App() {
   const [isEditMode, setIsEditMode] = useState(false);
+  const [visibleDials, setVisibleDials] = useState([0, 1, 2, 3]);
   const [selectedSpaceId, setSelectedSpaceId] = useState(null);
   const [, forceUpdate] = useState({});
+
+  const addSpaceToRing = (dialNum) => {
+    const ringNum = dialNum === 0 ? 4 : dialNum;
+    const newId = `b_r${ringNum}_added_${Date.now()}`;
+    const newSpace = {
+      id: newId,
+      dial: dialNum,
+      ring: ringNum,
+      initialSector: 0,
+      type: 'normal',
+      color: 'black',
+      angle: 0,
+      angleOffset: 0,
+      radiusOffset: 0
+    };
+    SPACES.push(newSpace);
+    setSelectedSpaceId(newId);
+    forceUpdate({});
+  };
+
 
   const updateSpaceField = (id, field, value) => {
     const space = SPACES.find(s => s.id === id);
@@ -1184,14 +1205,26 @@ export default function App() {
       </button>
 
       {isEditMode && (
-        <div style={{ position: 'fixed', top: '50px', right: '10px', zIndex: 9999, background: 'rgba(0,0,0,0.9)', border: '1px solid var(--neon-magenta)', padding: '12px', borderRadius: '8px', color: 'white', width: '280px', fontSize: '12px', maxHeight: '80vh', overflowY: 'auto' }}>
+        <div style={{ position: 'fixed', top: '50px', right: '10px', zIndex: 9999, background: 'rgba(0,0,0,0.9)', border: '1px solid var(--neon-magenta)', padding: '12px', borderRadius: '8px', color: 'white', width: '320px', fontSize: '12px', maxHeight: '80vh', overflowY: 'auto' }}>
           
           <div style={{ marginBottom: '12px', borderBottom: '1px solid #555', paddingBottom: '12px' }}>
+            <h4 style={{margin: '0 0 10px 0', color: 'var(--neon-cyan)'}}>태양계 가시성 필터</h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
+               <button onClick={() => setVisibleDials([0, 1])} style={{padding: '4px', background: visibleDials.includes(1) && visibleDials.length === 2 ? 'var(--neon-cyan)' : '#444', color: visibleDials.includes(1) && visibleDials.length === 2 ? 'black' : 'white', borderRadius: '4px', border: 'none'}}>1번 태양계 보기</button>
+               <button onClick={() => setVisibleDials([0, 2])} style={{padding: '4px', background: visibleDials.includes(2) && visibleDials.length === 2 ? 'var(--neon-cyan)' : '#444', color: visibleDials.includes(2) && visibleDials.length === 2 ? 'black' : 'white', borderRadius: '4px', border: 'none'}}>2번 태양계 보기</button>
+               <button onClick={() => setVisibleDials([0, 3])} style={{padding: '4px', background: visibleDials.includes(3) && visibleDials.length === 2 ? 'var(--neon-cyan)' : '#444', color: visibleDials.includes(3) && visibleDials.length === 2 ? 'black' : 'white', borderRadius: '4px', border: 'none'}}>3번 태양계 보기</button>
+               <button onClick={() => setVisibleDials([0])} style={{padding: '4px', background: visibleDials.length === 1 && visibleDials.includes(0) ? 'var(--neon-cyan)' : '#444', color: visibleDials.length === 1 && visibleDials.includes(0) ? 'black' : 'white', borderRadius: '4px', border: 'none'}}>4번 태양계(바닥) 보기</button>
+               <button onClick={() => setVisibleDials([0, 1, 2, 3])} style={{gridColumn: '1 / span 2', padding: '4px', background: visibleDials.length === 4 ? 'var(--neon-cyan)' : '#444', color: visibleDials.length === 4 ? 'black' : 'white', borderRadius: '4px', border: 'none'}}>전체 보기</button>
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '12px', borderBottom: '1px solid #555', paddingBottom: '12px' }}>
             <h4 style={{margin: '0 0 10px 0', color: 'var(--neon-magenta)'}}>새로운 칸(동그라미) 추가</h4>
-            <div style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
-               <button onClick={() => addSpaceToRing(1)} style={{flex: 1, padding: '4px', background: '#444', color: 'white', border: '1px solid #666', borderRadius: '4px'}}>1번 태양계</button>
-               <button onClick={() => addSpaceToRing(2)} style={{flex: 1, padding: '4px', background: '#444', color: 'white', border: '1px solid #666', borderRadius: '4px'}}>2번 태양계</button>
-               <button onClick={() => addSpaceToRing(3)} style={{flex: 1, padding: '4px', background: '#444', color: 'white', border: '1px solid #666', borderRadius: '4px'}}>3번 태양계</button>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
+               <button onClick={() => addSpaceToRing(1)} style={{padding: '4px', background: '#444', color: 'white', border: '1px solid #666', borderRadius: '4px'}}>1번 태양계 추가</button>
+               <button onClick={() => addSpaceToRing(2)} style={{padding: '4px', background: '#444', color: 'white', border: '1px solid #666', borderRadius: '4px'}}>2번 태양계 추가</button>
+               <button onClick={() => addSpaceToRing(3)} style={{padding: '4px', background: '#444', color: 'white', border: '1px solid #666', borderRadius: '4px'}}>3번 태양계 추가</button>
+               <button onClick={() => addSpaceToRing(0)} style={{padding: '4px', background: '#444', color: 'white', border: '1px solid #666', borderRadius: '4px'}}>4번 태양계 추가</button>
             </div>
           </div>
 
@@ -1236,6 +1269,14 @@ export default function App() {
               
               <label>반지름 변경 (위치 수정): {SPACES.find(s=>s.id===selectedSpaceId)?.radiusOffset || 0}%</label>
               <input type="range" min="-20" max="20" step="0.1" value={SPACES.find(s=>s.id===selectedSpaceId)?.radiusOffset || 0} onChange={(e) => updateSpaceField(selectedSpaceId, 'radiusOffset', parseFloat(e.target.value))} style={{width: '100%', marginBottom:'8px'}} />
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <button onClick={() => updateSpaceField(selectedSpaceId, 'angleOffset', (SPACES.find(s=>s.id===selectedSpaceId)?.angleOffset || 0) - 0.5)} style={{flex: 1}}>각도 -0.5</button>
+                <button onClick={() => updateSpaceField(selectedSpaceId, 'angleOffset', (SPACES.find(s=>s.id===selectedSpaceId)?.angleOffset || 0) + 0.5)} style={{flex: 1}}>각도 +0.5</button>
+              </div>
+              <div style={{ display: 'flex', gap: '4px', marginTop: '4px', marginBottom: '8px' }}>
+                <button onClick={() => updateSpaceField(selectedSpaceId, 'radiusOffset', (SPACES.find(s=>s.id===selectedSpaceId)?.radiusOffset || 0) - 0.5)} style={{flex: 1}}>반지름 -0.5</button>
+                <button onClick={() => updateSpaceField(selectedSpaceId, 'radiusOffset', (SPACES.find(s=>s.id===selectedSpaceId)?.radiusOffset || 0) + 0.5)} style={{flex: 1}}>반지름 +0.5</button>
+              </div>
             </>
           ) : (
              <div style={{ color: '#aaa', fontStyle: 'italic', marginBottom: '12px', background: 'rgba(255,255,255,0.05)', padding: '8px', borderRadius: '4px' }}>
@@ -1984,6 +2025,7 @@ export default function App() {
                   
                   {/* Rotating Dials Overlay */}
                   {[0, 1, 2, 3].map(dialNum => {
+                     if (!visibleDials.includes(dialNum)) return null;
                      const angle = dialNum === 0 ? 0 : dialNum === 1 ? ring1Angle : dialNum === 2 ? ring2Angle : ring3Angle;
                      const imgUrl = dialNum === 1 ? IMAGES.ring1 : dialNum === 2 ? IMAGES.ring2 : dialNum === 3 ? IMAGES.ring3 : null;
                      
