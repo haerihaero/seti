@@ -1306,7 +1306,15 @@ export default function App() {
              </div>
           )}
 
-          <button onClick={() => { console.log(JSON.stringify(SPACES, null, 2)); alert("전체 SPACES 설정이 브라우저 콘솔에 출력되었습니다! 변경된 코드를 복사해서 반영하세요."); }} style={{width:'100%', padding:'8px', marginTop: '10px', background: 'var(--neon-gold)', color: 'black', fontWeight: 'bold', border: 'none', borderRadius: '4px'}}>현재 설정 콘솔 출력 (저장)</button>
+          <button onClick={() => { 
+            const data = JSON.stringify(SPACES, null, 2);
+            console.log(data); 
+            navigator.clipboard.writeText(data).then(() => {
+              alert("전체 SPACES 설정이 클립보드에 복사되었습니다! (그리고 개발자 콘솔에도 출력되었습니다)\\n\\n이제 VSCode로 가셔서 src/App.jsx 파일의 let SPACES = [...] 부분을 지우고 붙여넣기(Ctrl+V) 하세요!"); 
+            }).catch(() => {
+              alert("클립보드 복사에 실패했습니다. F12를 눌러 콘솔 창에서 직접 복사해주세요.");
+            });
+          }} style={{width:'100%', padding:'8px', marginTop: '10px', background: 'var(--neon-gold)', color: 'black', fontWeight: 'bold', border: 'none', borderRadius: '4px'}}>현재 설정 클립보드에 복사 (저장 대기)</button>
         </div>
       )}
       
