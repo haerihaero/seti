@@ -86,77 +86,15 @@ const TECH_SLOTS_CONFIG = {
   blue3: { label: '연구 3', coords: { left: '65%', top: '80%' }, color: '#29b6f6', name: '청색 연구 3 업그레이드' }
 };
 
-let SPACES = [
-  // BASE BOARD (Dial 0 - Static)
-  { id: 'b_r2_0', dial: 0, ring: 2, initialSector: 0, type: 'normal', color: 'black', angle: 0, angleOffset: 0 },
-  { id: 'b_r2_1', dial: 0, ring: 2, initialSector: 1, type: 'normal', color: 'black', angle: 45, angleOffset: 15 },
-  { id: 'b_r2_2', dial: 0, ring: 2, initialSector: 2, type: 'asteroid', color: 'red', angle: 90, angleOffset: 30 },
-  { id: 'b_r2_3', dial: 0, ring: 2, initialSector: 3, type: 'normal', color: 'black', angle: 135, angleOffset: 0 },
-  { id: 'b_r2_4', dial: 0, ring: 2, initialSector: 4, type: 'asteroid', color: 'red', angle: 180, angleOffset: 0 },
-  { id: 'b_r2_5', dial: 0, ring: 2, initialSector: 5, type: 'asteroid', color: 'red', angle: 225, angleOffset: 0 },
-  { id: 'b_r2_6', dial: 0, ring: 2, initialSector: 6, type: 'normal', color: 'black', angle: 270, angleOffset: 10 },
-  { id: 'b_r2_7', dial: 0, ring: 2, initialSector: 7, type: 'asteroid', color: 'red', angle: 315, angleOffset: 0 },
+import initialSpaces from './spaces.json';
+let SPACES = JSON.parse(JSON.stringify(initialSpaces));
 
-  { id: 'b_r3_0', dial: 0, ring: 3, initialSector: 0, type: 'normal', color: 'black', angle: 0, angleOffset: 15 },
-  { id: 'b_r3_1', dial: 0, ring: 3, initialSector: 1, type: 'normal', color: 'black', angle: 45, angleOffset: 0 },
-  { id: 'neptune', dial: 0, ring: 3, initialSector: 2, type: 'normal', color: 'black', angle: 90, angleOffset: -5 },
-  { id: 'b_r3_3', dial: 0, ring: 3, initialSector: 3, type: 'normal', color: 'black', angle: 135, angleOffset: 0 },
-  { id: 'b_r3_4', dial: 0, ring: 3, initialSector: 4, type: 'normal', color: 'black', angle: 180, angleOffset: 0 },
-  { id: 'b_r3_5', dial: 0, ring: 3, initialSector: 5, type: 'asteroid', color: 'red', angle: 225, angleOffset: 0 },
-  { id: 'b_r3_6', dial: 0, ring: 3, initialSector: 6, type: 'normal', color: 'black', angle: 270, angleOffset: -5 },
-  { id: 'b_r3_7', dial: 0, ring: 3, initialSector: 7, type: 'normal', color: 'black', angle: 315, angleOffset: 5 },
-
-  // DIAL 1 (Inner, Yellow) 
-  { id: 'earth', dial: 1, ring: 3, initialSector: 7, type: 'earth', color: 'orange', angle: 315, angleOffset: 35, radiusOffset: -10 },
-  { id: 'venus', dial: 1, ring: 2, initialSector: 5, type: 'mic', color: 'var(--neon-green)', angle: 225, angleOffset: -15, radiusOffset: 5 },
-  { id: 'mercury', dial: 1, ring: 2, initialSector: 3, type: 'mic', color: 'var(--neon-green)', angle: 135, angleOffset: 115, radiusOffset: 5 },
-  { id: 'd1_empty_45', dial: 1, ring: 2, initialSector: 1, type: 'normal', color: 'black', angle: 45, angleOffset: -15 },
-
-  // DIAL 2 (Middle, Red)
-  { id: 'mars', dial: 2, ring: 2, initialSector: 5, type: 'mic', color: 'var(--neon-green)', angle: 225, angleOffset: -30, radiusOffset: 5 },
-  { id: 'd2_r2_ast_1', dial: 2, ring: 2, initialSector: 3, type: 'asteroid', color: 'red', angle: 135, angleOffset: 0 },
-  { id: 'd2_r2_ast_2', dial: 2, ring: 2, initialSector: 7, type: 'asteroid', color: 'red', angle: 315, angleOffset: 0 },
-
-  // DIAL 3 (Outer, Blue)
-  { id: 'comet', dial: 3, ring: 1, initialSector: 6, type: 'mic', color: 'var(--neon-green)', angle: 270, angleOffset: -160, radiusOffset: -5 },
-  { id: 'jupiter', dial: 3, ring: 3, initialSector: 1, type: 'mic', color: 'var(--neon-green)', angle: 45, angleOffset: -85, radiusOffset: 5 },
-  { id: 'saturn', dial: 3, ring: 3, initialSector: 4, type: 'mic', color: 'var(--neon-green)', angle: 180, angleOffset: -5, radiusOffset: 5 },
-  { id: 'uranus', dial: 3, ring: 3, initialSector: 7, type: 'normal', color: 'black', angle: 315, angleOffset: 90, radiusOffset: 5 },
-  // --- EXTRA SLOTS GENERATED PER USER REQUEST ---
-  { id: 'd1_slot_5', dial: 1, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd2_slot_4', dial: 2, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd2_slot_5', dial: 2, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd2_slot_6', dial: 2, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd2_slot_7', dial: 2, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd2_slot_8', dial: 2, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd3_slot_5', dial: 3, ring: 3, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd3_slot_6', dial: 3, ring: 3, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd3_slot_7', dial: 3, ring: 3, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd3_slot_8', dial: 3, ring: 3, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd3_slot_9', dial: 3, ring: 3, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd3_slot_10', dial: 3, ring: 3, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd3_slot_11', dial: 3, ring: 3, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd3_slot_12', dial: 3, ring: 3, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd3_slot_13', dial: 3, ring: 3, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd3_slot_14', dial: 3, ring: 3, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd3_slot_15', dial: 3, ring: 3, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd0_slot_18', dial: 0, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd0_slot_19', dial: 0, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd0_slot_20', dial: 0, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd0_slot_21', dial: 0, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd0_slot_22', dial: 0, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd0_slot_23', dial: 0, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd0_slot_24', dial: 0, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd0_slot_25', dial: 0, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd0_slot_26', dial: 0, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd0_slot_27', dial: 0, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd0_slot_28', dial: 0, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd0_slot_29', dial: 0, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd0_slot_30', dial: 0, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd0_slot_31', dial: 0, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-  { id: 'd0_slot_32', dial: 0, ring: 2, initialSector: 0, type: 'hidden', color: 'black', angle: 0, angleOffset: 0, radiusOffset: 0 },
-
-];
+const shouldShowDialSpaces = (dialNum, visibleDials) => {
+  if (dialNum === 0) {
+    return visibleDials.includes(0) && (visibleDials.length === 1 || visibleDials.length === 4);
+  }
+  return visibleDials.includes(dialNum);
+};
 
 const getPhysicalSector = (space, ring1Angle, ring2Angle, ring3Angle) => {
    const angle = space.dial === 0 ? 0 : space.dial === 1 ? ring1Angle : space.dial === 2 ? ring2Angle : ring3Angle;
@@ -1240,7 +1178,7 @@ export default function App() {
                 style={{width:'100%', marginBottom:'8px', background:'#222', color:'var(--neon-magenta)', padding: '6px', border: '1px solid var(--neon-magenta)', borderRadius: '4px'}}
              >
                 <option value="">-- 보드판에서 칸을 클릭하거나 선택 --</option>
-                {SPACES.filter(s => visibleDials.includes(s.dial)).map(s => (
+                {SPACES.filter(s => shouldShowDialSpaces(s.dial, visibleDials)).map(s => (
                   <option key={s.id} value={s.id}>
                     {s.dial === 0 ? 4 : s.dial}번 태양계 - {s.id} ({s.planet || s.type})
                   </option>
@@ -1308,13 +1246,34 @@ export default function App() {
 
           <button onClick={() => { 
             const data = JSON.stringify(SPACES, null, 2);
-            console.log(data); 
-            navigator.clipboard.writeText(data).then(() => {
-              alert("전체 SPACES 설정이 클립보드에 복사되었습니다! (그리고 개발자 콘솔에도 출력되었습니다)\\n\\n이제 VSCode로 가셔서 src/App.jsx 파일의 let SPACES = [...] 부분을 지우고 붙여넣기(Ctrl+V) 하세요!"); 
-            }).catch(() => {
-              alert("클립보드 복사에 실패했습니다. F12를 눌러 콘솔 창에서 직접 복사해주세요.");
+            console.log(data);
+            
+            // Try saving to backend file directly
+            fetch('/api/save-spaces', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: data
+            })
+            .then(res => res.json())
+            .then(resData => {
+              if (resData.success) {
+                alert("🎉 설정 파일(src/spaces.json)에 직접 성공적으로 저장되었습니다! \n자동으로 보드판이 갱신됩니다.");
+              } else {
+                throw new Error(resData.error || '알 수 없는 오류');
+              }
+            })
+            .catch(err => {
+              console.error(err);
+              // Fallback to clipboard
+              navigator.clipboard.writeText(data).then(() => {
+                alert("서버 저장에 실패하여 클립보드 복사로 대체되었습니다! \n\n오류: " + err.message + "\n\n콘솔 로그를 복사하여 spaces.json 파일에 직접 저장하셔도 됩니다.");
+              }).catch(() => {
+                alert("클립보드 복사 및 서버 저장 모두 실패했습니다. F12 콘솔 창에서 복사해주세요.");
+              });
             });
-          }} style={{width:'100%', padding:'8px', marginTop: '10px', background: 'var(--neon-gold)', color: 'black', fontWeight: 'bold', border: 'none', borderRadius: '4px'}}>현재 설정 클립보드에 복사 (저장 대기)</button>
+          }} style={{width:'100%', padding:'10px', marginTop: '10px', background: 'var(--neon-gold)', color: 'black', fontWeight: 'bold', border: 'none', borderRadius: '4px', cursor: 'pointer'}}>현재 설정 파일(src/spaces.json)에 직접 저장 💾</button>
         </div>
       )}
       
@@ -2103,7 +2062,7 @@ export default function App() {
                             )}
                            
                            {/* Space Nodes */}
-                           {dialSpaces.map(space => {
+                           {shouldShowDialSpaces(dialNum, visibleDials) && dialSpaces.map(space => {
                               const baseR = space.ring === 1 ? alignRing1Radius : space.ring === 2 ? alignRing2Radius : alignRing3Radius; const r = baseR + (space.radiusOffset || 0);
                               const rad = ((space.angle + (space.angleOffset || 0)) * Math.PI) / 180;
                               const x = Math.cos(rad) * r;
