@@ -1183,49 +1183,67 @@ export default function App() {
         {isEditMode ? '⚙️ 편집 모드 종료 (콘솔 출력)' : '⚙️ 보드판 편집 모드'}
       </button>
 
-      {isEditMode && selectedSpaceId && (
-        <div style={{ position: 'fixed', top: '50px', right: '10px', zIndex: 9999, background: 'rgba(0,0,0,0.9)', border: '1px solid var(--neon-magenta)', padding: '12px', borderRadius: '8px', color: 'white', width: '280px', fontSize: '12px' }}>
-          <h4 style={{margin: '0 0 10px 0'}}>칸 편집: {selectedSpaceId}</h4>
+      {isEditMode && (
+        <div style={{ position: 'fixed', top: '50px', right: '10px', zIndex: 9999, background: 'rgba(0,0,0,0.9)', border: '1px solid var(--neon-magenta)', padding: '12px', borderRadius: '8px', color: 'white', width: '280px', fontSize: '12px', maxHeight: '80vh', overflowY: 'auto' }}>
           
-          <label style={{display:'block', marginBottom:'4px'}}>행성 매핑 (planet)</label>
-          <select 
-            value={SPACES.find(s=>s.id===selectedSpaceId)?.planet || 'none'} 
-            onChange={(e) => updateSpaceField(selectedSpaceId, 'planet', e.target.value === 'none' ? undefined : e.target.value)}
-            style={{width:'100%', marginBottom:'8px', background:'#333', color:'white'}}
-          >
-            <option value="none">없음 (일반 우주)</option>
-            <option value="earth">지구 (Earth)</option>
-            <option value="venus">금성 (Venus)</option>
-            <option value="mercury">수성 (Mercury)</option>
-            <option value="mars">화성 (Mars)</option>
-            <option value="jupiter">목성 (Jupiter)</option>
-            <option value="saturn">토성 (Saturn)</option>
-            <option value="uranus">천왕성 (Uranus)</option>
-            <option value="neptune">해왕성 (Neptune)</option>
-          </select>
+          <div style={{ marginBottom: '12px', borderBottom: '1px solid #555', paddingBottom: '12px' }}>
+            <h4 style={{margin: '0 0 10px 0', color: 'var(--neon-magenta)'}}>새로운 칸(동그라미) 추가</h4>
+            <div style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
+               <button onClick={() => addSpaceToRing(1)} style={{flex: 1, padding: '4px', background: '#444', color: 'white', border: '1px solid #666', borderRadius: '4px'}}>1번 태양계</button>
+               <button onClick={() => addSpaceToRing(2)} style={{flex: 1, padding: '4px', background: '#444', color: 'white', border: '1px solid #666', borderRadius: '4px'}}>2번 태양계</button>
+               <button onClick={() => addSpaceToRing(3)} style={{flex: 1, padding: '4px', background: '#444', color: 'white', border: '1px solid #666', borderRadius: '4px'}}>3번 태양계</button>
+            </div>
+          </div>
 
-          <label style={{display:'block', marginBottom:'4px'}}>칸 종류 (type)</label>
-          <select 
-            value={SPACES.find(s=>s.id===selectedSpaceId)?.type || 'normal'} 
-            onChange={(e) => {
-              const val = e.target.value;
-              updateSpaceField(selectedSpaceId, 'type', val);
-              updateSpaceField(selectedSpaceId, 'color', val === 'mic' ? 'var(--neon-green)' : val === 'asteroid' ? 'red' : 'black');
-            }}
-            style={{width:'100%', marginBottom:'8px', background:'#333', color:'white'}}
-          >
-            <option value="normal">일반 이동칸 (검은색)</option>
-            <option value="mic">명성칸 (녹색)</option>
-            <option value="asteroid">소행성칸 (적색)</option>
-          </select>
+          {selectedSpaceId ? (
+            <>
+              <h4 style={{margin: '0 0 10px 0'}}>칸 편집: {selectedSpaceId}</h4>
+              
+              <label style={{display:'block', marginBottom:'4px'}}>행성 매핑 (상단 보드와 연동)</label>
+              <select 
+                value={SPACES.find(s=>s.id===selectedSpaceId)?.planet || 'none'} 
+                onChange={(e) => updateSpaceField(selectedSpaceId, 'planet', e.target.value === 'none' ? undefined : e.target.value)}
+                style={{width:'100%', marginBottom:'8px', background:'#333', color:'white'}}
+              >
+                <option value="none">없음 (일반 우주)</option>
+                <option value="earth">지구 (Earth)</option>
+                <option value="venus">금성 (Venus)</option>
+                <option value="mercury">수성 (Mercury)</option>
+                <option value="mars">화성 (Mars)</option>
+                <option value="jupiter">목성 (Jupiter)</option>
+                <option value="saturn">토성 (Saturn)</option>
+                <option value="uranus">천왕성 (Uranus)</option>
+                <option value="neptune">해왕성 (Neptune)</option>
+              </select>
 
-          <label>각도 Offset: {SPACES.find(s=>s.id===selectedSpaceId)?.angleOffset || 0}</label>
-          <input type="range" min="-180" max="180" step="0.5" value={SPACES.find(s=>s.id===selectedSpaceId)?.angleOffset || 0} onChange={(e) => updateSpaceField(selectedSpaceId, 'angleOffset', parseFloat(e.target.value))} style={{width: '100%', marginBottom:'8px'}} />
-          
-          <label>반지름 Offset: {SPACES.find(s=>s.id===selectedSpaceId)?.radiusOffset || 0}%</label>
-          <input type="range" min="-20" max="20" step="0.1" value={SPACES.find(s=>s.id===selectedSpaceId)?.radiusOffset || 0} onChange={(e) => updateSpaceField(selectedSpaceId, 'radiusOffset', parseFloat(e.target.value))} style={{width: '100%', marginBottom:'8px'}} />
-          
-          <button onClick={() => { console.log(JSON.stringify(SPACES, null, 2)); alert("전체 SPACES 설정이 브라우저 콘솔에 출력되었습니다!"); }} style={{width:'100%', padding:'4px'}}>현재 설정 콘솔 출력</button>
+              <label style={{display:'block', marginBottom:'4px'}}>칸 종류 (type)</label>
+              <select 
+                value={SPACES.find(s=>s.id===selectedSpaceId)?.type || 'normal'} 
+                onChange={(e) => {
+                  const val = e.target.value;
+                  updateSpaceField(selectedSpaceId, 'type', val);
+                  updateSpaceField(selectedSpaceId, 'color', val === 'mic' ? 'var(--neon-green)' : val === 'asteroid' ? 'red' : 'black');
+                }}
+                style={{width:'100%', marginBottom:'8px', background:'#333', color:'white'}}
+              >
+                <option value="normal">일반 이동칸 (검은색)</option>
+                <option value="mic">명성칸 (녹색)</option>
+                <option value="asteroid">소행성칸 (적색)</option>
+              </select>
+
+              <label>각도 변경 (위치 수정): {SPACES.find(s=>s.id===selectedSpaceId)?.angleOffset || 0}</label>
+              <input type="range" min="-180" max="180" step="0.5" value={SPACES.find(s=>s.id===selectedSpaceId)?.angleOffset || 0} onChange={(e) => updateSpaceField(selectedSpaceId, 'angleOffset', parseFloat(e.target.value))} style={{width: '100%', marginBottom:'8px'}} />
+              
+              <label>반지름 변경 (위치 수정): {SPACES.find(s=>s.id===selectedSpaceId)?.radiusOffset || 0}%</label>
+              <input type="range" min="-20" max="20" step="0.1" value={SPACES.find(s=>s.id===selectedSpaceId)?.radiusOffset || 0} onChange={(e) => updateSpaceField(selectedSpaceId, 'radiusOffset', parseFloat(e.target.value))} style={{width: '100%', marginBottom:'8px'}} />
+            </>
+          ) : (
+             <div style={{ color: '#aaa', fontStyle: 'italic', marginBottom: '12px', background: 'rgba(255,255,255,0.05)', padding: '8px', borderRadius: '4px' }}>
+                보드판에서 편집할 칸(원)을 클릭하거나, 상단의 버튼으로 새 칸을 추가하세요.
+             </div>
+          )}
+
+          <button onClick={() => { console.log(JSON.stringify(SPACES, null, 2)); alert("전체 SPACES 설정이 브라우저 콘솔에 출력되었습니다!"); }} style={{width:'100%', padding:'8px', marginTop: '10px', background: 'var(--neon-gold)', color: 'black', fontWeight: 'bold', border: 'none', borderRadius: '4px'}}>현재 설정 콘솔 출력 및 저장 대기</button>
         </div>
       )}
       
