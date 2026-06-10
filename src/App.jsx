@@ -187,26 +187,6 @@ export default function App() {
   const [selectedSpaceId, setSelectedSpaceId] = useState(null);
   const [, forceUpdate] = useState({});
 
-  const addSpaceToRing = (dialNum) => {
-    const ringNum = dialNum === 0 ? 4 : dialNum;
-    const newId = `b_r${ringNum}_added_${Date.now()}`;
-    const newSpace = {
-      id: newId,
-      dial: dialNum,
-      ring: ringNum,
-      initialSector: 0,
-      type: 'normal',
-      color: 'black',
-      angle: 0,
-      angleOffset: 0,
-      radiusOffset: 0
-    };
-    SPACES.push(newSpace);
-    setSelectedSpaceId(newId);
-    forceUpdate({});
-  };
-
-
   const updateSpaceField = (id, field, value) => {
     const space = SPACES.find(s => s.id === id);
     if (space) {
@@ -1218,19 +1198,25 @@ export default function App() {
             </div>
           </div>
 
-          <div style={{ marginBottom: '12px', borderBottom: '1px solid #555', paddingBottom: '12px' }}>
-            <h4 style={{margin: '0 0 10px 0', color: 'var(--neon-magenta)'}}>새로운 칸(동그라미) 추가</h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px' }}>
-               <button onClick={() => addSpaceToRing(1)} style={{padding: '4px', background: '#444', color: 'white', border: '1px solid #666', borderRadius: '4px'}}>1번 태양계 추가</button>
-               <button onClick={() => addSpaceToRing(2)} style={{padding: '4px', background: '#444', color: 'white', border: '1px solid #666', borderRadius: '4px'}}>2번 태양계 추가</button>
-               <button onClick={() => addSpaceToRing(3)} style={{padding: '4px', background: '#444', color: 'white', border: '1px solid #666', borderRadius: '4px'}}>3번 태양계 추가</button>
-               <button onClick={() => addSpaceToRing(0)} style={{padding: '4px', background: '#444', color: 'white', border: '1px solid #666', borderRadius: '4px'}}>4번 태양계 추가</button>
-            </div>
+          <div style={{ marginBottom: '12px' }}>
+             <h4 style={{margin: '0 0 10px 0'}}>편집할 칸 선택 (현재 보이는 태양계)</h4>
+             <select 
+                value={selectedSpaceId || ''} 
+                onChange={(e) => setSelectedSpaceId(e.target.value)}
+                style={{width:'100%', marginBottom:'8px', background:'#222', color:'var(--neon-magenta)', padding: '6px', border: '1px solid var(--neon-magenta)', borderRadius: '4px'}}
+             >
+                <option value="">-- 보드판에서 칸을 클릭하거나 선택 --</option>
+                {SPACES.filter(s => visibleDials.includes(s.dial)).map(s => (
+                  <option key={s.id} value={s.id}>
+                    {s.dial}번 태양계 - {s.id} ({s.planet || s.type})
+                  </option>
+                ))}
+             </select>
           </div>
 
           {selectedSpaceId ? (
-            <>
-              <h4 style={{margin: '0 0 10px 0'}}>칸 편집: {selectedSpaceId}</h4>
+            <div style={{ background: 'rgba(255,255,255,0.05)', padding: '12px', borderRadius: '8px' }}>
+              <h4 style={{margin: '0 0 10px 0', color: 'var(--neon-gold)'}}>칸 상세 편집: {selectedSpaceId}</h4>
               
               <label style={{display:'block', marginBottom:'4px'}}>행성 매핑 (상단 보드와 연동)</label>
               <select 
@@ -1255,36 +1241,38 @@ export default function App() {
                 onChange={(e) => {
                   const val = e.target.value;
                   updateSpaceField(selectedSpaceId, 'type', val);
-                  updateSpaceField(selectedSpaceId, 'color', val === 'mic' ? 'var(--neon-green)' : val === 'asteroid' ? 'red' : 'black');
+                  updateSpaceField(selectedSpaceId, 'color', val === 'mic' ? 'var(--neon-green)' : val === 'asteroid' ? 'red' : val === 'hidden' ? 'transparent' : 'black');
                 }}
                 style={{width:'100%', marginBottom:'8px', background:'#333', color:'white'}}
               >
                 <option value="normal">일반 이동칸 (검은색)</option>
                 <option value="mic">명성칸 (녹색)</option>
                 <option value="asteroid">소행성칸 (적색)</option>
+                <option value="hidden">숨김 (투명화, 사용안함)</option>
               </select>
 
               <label>각도 변경 (위치 수정): {SPACES.find(s=>s.id===selectedSpaceId)?.angleOffset || 0}</label>
               <input type="range" min="-180" max="180" step="0.5" value={SPACES.find(s=>s.id===selectedSpaceId)?.angleOffset || 0} onChange={(e) => updateSpaceField(selectedSpaceId, 'angleOffset', parseFloat(e.target.value))} style={{width: '100%', marginBottom:'8px'}} />
               
               <label>반지름 변경 (위치 수정): {SPACES.find(s=>s.id===selectedSpaceId)?.radiusOffset || 0}%</label>
-              <input type="range" min="-20" max="20" step="0.1" value={SPACES.find(s=>s.id===selectedSpaceId)?.radiusOffset || 0} onChange={(e) => updateSpaceField(selectedSpaceId, 'radiusOffset', parseFloat(e.target.value))} style={{width: '100%', marginBottom:'8px'}} />
+              <input type="range" min="-30" max="30" step="0.1" value={SPACES.find(s=>s.id===selectedSpaceId)?.radiusOffset || 0} onChange={(e) => updateSpaceField(selectedSpaceId, 'radiusOffset', parseFloat(e.target.value))} style={{width: '100%', marginBottom:'8px'}} />
+              
               <div style={{ display: 'flex', gap: '4px' }}>
-                <button onClick={() => updateSpaceField(selectedSpaceId, 'angleOffset', (SPACES.find(s=>s.id===selectedSpaceId)?.angleOffset || 0) - 0.5)} style={{flex: 1}}>각도 -0.5</button>
-                <button onClick={() => updateSpaceField(selectedSpaceId, 'angleOffset', (SPACES.find(s=>s.id===selectedSpaceId)?.angleOffset || 0) + 0.5)} style={{flex: 1}}>각도 +0.5</button>
+                <button onClick={() => updateSpaceField(selectedSpaceId, 'angleOffset', (SPACES.find(s=>s.id===selectedSpaceId)?.angleOffset || 0) - 0.5)} style={{flex: 1, padding: '4px'}}>각도 -0.5</button>
+                <button onClick={() => updateSpaceField(selectedSpaceId, 'angleOffset', (SPACES.find(s=>s.id===selectedSpaceId)?.angleOffset || 0) + 0.5)} style={{flex: 1, padding: '4px'}}>각도 +0.5</button>
               </div>
               <div style={{ display: 'flex', gap: '4px', marginTop: '4px', marginBottom: '8px' }}>
-                <button onClick={() => updateSpaceField(selectedSpaceId, 'radiusOffset', (SPACES.find(s=>s.id===selectedSpaceId)?.radiusOffset || 0) - 0.5)} style={{flex: 1}}>반지름 -0.5</button>
-                <button onClick={() => updateSpaceField(selectedSpaceId, 'radiusOffset', (SPACES.find(s=>s.id===selectedSpaceId)?.radiusOffset || 0) + 0.5)} style={{flex: 1}}>반지름 +0.5</button>
+                <button onClick={() => updateSpaceField(selectedSpaceId, 'radiusOffset', (SPACES.find(s=>s.id===selectedSpaceId)?.radiusOffset || 0) - 0.5)} style={{flex: 1, padding: '4px'}}>반지름 -0.5</button>
+                <button onClick={() => updateSpaceField(selectedSpaceId, 'radiusOffset', (SPACES.find(s=>s.id===selectedSpaceId)?.radiusOffset || 0) + 0.5)} style={{flex: 1, padding: '4px'}}>반지름 +0.5</button>
               </div>
-            </>
+            </div>
           ) : (
              <div style={{ color: '#aaa', fontStyle: 'italic', marginBottom: '12px', background: 'rgba(255,255,255,0.05)', padding: '8px', borderRadius: '4px' }}>
-                보드판에서 편집할 칸(원)을 클릭하거나, 상단의 버튼으로 새 칸을 추가하세요.
+                보드판에서 편집할 칸(원)을 클릭하거나, 위 드롭다운에서 선택하세요.
              </div>
           )}
 
-          <button onClick={() => { console.log(JSON.stringify(SPACES, null, 2)); alert("전체 SPACES 설정이 브라우저 콘솔에 출력되었습니다!"); }} style={{width:'100%', padding:'8px', marginTop: '10px', background: 'var(--neon-gold)', color: 'black', fontWeight: 'bold', border: 'none', borderRadius: '4px'}}>현재 설정 콘솔 출력 및 저장 대기</button>
+          <button onClick={() => { console.log(JSON.stringify(SPACES, null, 2)); alert("전체 SPACES 설정이 브라우저 콘솔에 출력되었습니다! 변경된 코드를 복사해서 반영하세요."); }} style={{width:'100%', padding:'8px', marginTop: '10px', background: 'var(--neon-gold)', color: 'black', fontWeight: 'bold', border: 'none', borderRadius: '4px'}}>현재 설정 콘솔 출력 (저장)</button>
         </div>
       )}
       
