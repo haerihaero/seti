@@ -1242,7 +1242,7 @@ export default function App() {
                 <option value="">-- 보드판에서 칸을 클릭하거나 선택 --</option>
                 {SPACES.filter(s => visibleDials.includes(s.dial)).map(s => (
                   <option key={s.id} value={s.id}>
-                    {s.dial}번 태양계 - {s.id} ({s.planet || s.type})
+                    {s.dial === 0 ? 4 : s.dial}번 태양계 - {s.id} ({s.planet || s.type})
                   </option>
                 ))}
              </select>
