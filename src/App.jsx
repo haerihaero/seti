@@ -154,6 +154,25 @@ const getTopmostSpaces = (ring1Angle, ring2Angle, ring3Angle, visibleDials) => {
    return Object.values(grid);
 };
 
+
+const getWedgePath = (x, y, rIn, rOut, startAngle, endAngle) => {
+  const startRad = startAngle * Math.PI / 180;
+  const endRad = endAngle * Math.PI / 180;
+  const p1 = { x: x + Math.cos(startRad)*rOut, y: y + Math.sin(startRad)*rOut };
+  const p2 = { x: x + Math.cos(endRad)*rOut, y: y + Math.sin(endRad)*rOut };
+  const p3 = { x: x + Math.cos(endRad)*rIn, y: y + Math.sin(endRad)*rIn };
+  const p4 = { x: x + Math.cos(startRad)*rIn, y: y + Math.sin(startRad)*rIn };
+  const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+
+  return [
+    "M", p1.x, p1.y,
+    "A", rOut, rOut, 0, largeArcFlag, 1, p2.x, p2.y,
+    "L", p3.x, p3.y,
+    "A", rIn, rIn, 0, largeArcFlag, 0, p4.x, p4.y,
+    "Z"
+  ].join(" ");
+};
+
 export default function App() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [visibleDials, setVisibleDials] = useState([0, 1, 2, 3]);
@@ -2062,6 +2081,48 @@ export default function App() {
                                />
                             )}
                            
+                                                      {/* Space Wedges SVG Overlay */}
+                           <svg viewBox="0 0 100 100" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 25, overflow: 'visible' }}>
+                             {shouldShowDialSpaces(dialNum, visibleDials) && dialSpaces.map(space => {
+                               const rOffset = space.radiusOffset || 0;
+                               const rIn = (space.ring === 1 ? 8 : space.ring === 2 ? alignRing2Radius - 5 : alignRing3Radius - 6) + rOffset;
+                               const rOut = (space.ring === 1 ? alignRing1Radius + 5 : space.ring === 2 ? alignRing2Radius + 6 : alignRing3Radius + 6) + rOffset;
+                               const angleDeg = space.angle + (space.angleOffset || 0);
+                               const startAngle = angleDeg - 22.5;
+                               const endAngle = angleDeg + 22.5;
+                               const isHighlighted = adjSpaces.some(s => s.id === space.id);
+                               
+                               return (
+                                 <path
+                                   key={`wedge-${space.id}`}
+                                   d={getWedgePath(50, 50, rIn, rOut, startAngle, endAngle)}
+                                   fill={isHighlighted ? 'rgba(0, 229, 255, 0.2)' : (space.type === 'hidden' ? 'transparent' : 'rgba(0, 0, 0, 0.4)')}
+                                   stroke={isHighlighted ? '#fff' : space.color}
+                                   strokeWidth={isHighlighted ? "0.6" : "0.3"}
+                                   pointerEvents="auto"
+                                   onClick={(e) => {
+                                     if (isEditMode) {
+                                       e.stopPropagation();
+                                       setSelectedSpaceId(space.id);
+                                       return;
+                                     }
+                                     if (isHighlighted) {
+                                       e.stopPropagation();
+                                       moveTo(selectedProbeId, space.id);
+                                     }
+                                   }}
+                                   style={{
+                                     cursor: isHighlighted || isEditMode ? 'pointer' : 'default',
+                                     transition: 'all 0.3s',
+                                     filter: isHighlighted ? `drop-shadow(0 0 4px ${space.color})` : 'none'
+                                   }}
+                                 >
+                                   <title>{space.name || space.id}</title>
+                                 </path>
+                               );
+                             })}
+                           </svg>
+                           
                            {/* Space Nodes */}
                            {shouldShowDialSpaces(dialNum, visibleDials) && dialSpaces.map(space => {
                               const baseR = space.ring === 1 ? alignRing1Radius : space.ring === 2 ? alignRing2Radius : alignRing3Radius; const r = baseR + (space.radiusOffset || 0);
@@ -2085,31 +2146,7 @@ export default function App() {
                                     alignItems: 'center',
                                     justifyContent: 'center'
                                  }}>
-                                    {/* The Node Circle */}
-                                    <div 
-                                      onClick={(e) => { 
-                                        if (isEditMode) {
-                                          e.stopPropagation();
-                                          setSelectedSpaceId(space.id);
-                                          return;
-                                        }
-                                        if (isHighlighted) {
-                                          e.stopPropagation(); 
-                                          moveTo(selectedProbeId, space.id); 
-                                        }
-                                      }}
-                                      className={isHighlighted ? 'pulse-slow' : ''}
-                                      style={{
-                                        width: '28px', 
-                                        height: '28px', 
-                                        borderRadius: '50%',
-                                        border: `2.5px solid ${space.color}`,
-                                        backgroundColor: 'rgba(0,0,0,0.6)',
-                                        cursor: isHighlighted ? 'pointer' : 'default',
-                                        boxShadow: isHighlighted ? `0 0 15px ${space.color}, inset 0 0 10px ${space.color}` : 'none',
-                                        transition: 'all 0.3s',
-                                        zIndex: isHighlighted ? 35 : 30
-                                    }}></div>
+                                    
                                     
                                     {/* Probes on this Node */}
                                     {spaceProbes.map((probe, gIdx) => {
