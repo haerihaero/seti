@@ -215,7 +215,6 @@ export default function App() {
   });
 
   const [activePlayerId, setActivePlayerId] = useState(1);
-
   // Derived states for active player
   const activePlayer = playersData[activePlayerId] || playersData[1];
   const credits = activePlayer.credits;
@@ -3261,8 +3260,8 @@ export default function App() {
                       transition: 'transform 0.2s',
                     }}
                     className="card-hover-scale"
-                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(2.2)'; e.currentTarget.style.zIndex = 1000; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.zIndex = 'auto'; }}
                   >
                     {/* Card slice container */}
                     <div style={{
@@ -3535,7 +3534,7 @@ export default function App() {
             <div style={{
               position: 'relative',
               height: '100%',
-              aspectRatio: '1581/1183',
+              width: '100%', aspectRatio: '473/220',
               margin: '0 auto',
             }}>
               <img 
@@ -3567,18 +3566,10 @@ export default function App() {
                       transform: 'translate(-50%, -50%)',
                       width: '7.2%',
                       height: '24%',
-                      backgroundColor: isActive ? config.color : 'transparent',
-                      border: isActive 
-                        ? '1.5px solid #ffeb3b' 
-                        : hasToken 
-                          ? '1.5px dashed var(--neon-green)' 
-                          : '1px dashed rgba(255,255,255,0.15)',
+                      backgroundColor: isActive ? 'rgba(0, 229, 255, 0.1)' : 'transparent',
+                      border: isActive ? '2px solid #ffeb3b' : hasToken ? '2px dashed var(--neon-green)' : '1px solid transparent',
                       borderRadius: '2px',
-                      boxShadow: isActive 
-                        ? '0 0 6px #ffeb3b, inset 0 0 4px rgba(0,0,0,0.5)' 
-                        : hasToken 
-                          ? '0 0 8px rgba(57, 255, 20, 0.4)' 
-                          : 'none',
+                      boxShadow: isActive ? '0 0 10px #ffeb3b, inset 0 0 10px rgba(0,229,255,0.5)' : hasToken ? '0 0 8px rgba(57, 255, 20, 0.4)' : 'none',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -3595,12 +3586,12 @@ export default function App() {
                     <span style={{ 
                       fontSize: '7px', 
                       fontWeight: 'bold', 
-                      color: isActive ? 'white' : hasToken ? 'var(--neon-green)' : 'rgba(255,255,255,0.25)', 
+                      color: isActive ? 'white' : hasToken ? 'var(--neon-green)' : 'transparent',
                       textAlign: 'center', 
                       scale: '0.85', 
                       lineHeight: 1.1 
                     }}>
-                      {config.label}
+                      {isActive ? '✓' : (hasToken ? '장착 대기' : '')}
                     </span>
                   </div>
                 );
@@ -3663,13 +3654,15 @@ export default function App() {
                 return (
                   <div
                     key={`tucked-${i}`}
-                    className="tucked-card"
+                    className="tucked-card" style={{ transition: "all 0.2s", transformOrigin: "bottom center" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(2.2) translateY(-40px)'; e.currentTarget.style.zIndex = 1000; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.zIndex = 'auto'; }}
                     style={{
                       position: 'absolute',
                       bottom: '-35px', // tucking depth
                       right: `${10 + i * 22}px`, // stack overlap offset
-                      width: '52px',
-                      height: '73px',
+                      width: '75px',
+                      height: '105px',
                       borderRadius: '4px',
                       backgroundImage: `url(${IMAGES[card.deck]})`,
                       backgroundSize: '1000% 700%',
@@ -3727,7 +3720,7 @@ export default function App() {
             )}
           </div>
 
-          <div style={{ flex: 1, display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '4px', alignItems: 'center' }}>
+          <div style={{ flex: 1, display: 'flex', gap: '-20px', overflow: 'visible', paddingBottom: '4px', alignItems: 'center' }}>
             <AnimatePresence>
               {hand.length === 0 ? (
                 <div style={{ color: 'var(--text-muted)', fontSize: '13px', margin: 'auto', textAlign: 'center' }}>
@@ -3740,13 +3733,14 @@ export default function App() {
                     initial={{ opacity: 0, y: 50, scale: 0.8 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -50, scale: 0.8 }}
-                    whileHover={{ y: -15, zIndex: 100, scale: 1.05 }}
+                    whileHover={{ y: -120, zIndex: 1000, scale: 2.2 }}
                     onClick={() => handleCardClick(i)}
                     className={isSelectingIncomeTuck ? "gold-glow-pulse" : ""}
                     style={{
                       flexShrink: 0,
-                      width: '95px',
-                      height: '133px',
+                      width: '140px',
+                      height: '196px',
+                      transformOrigin: 'bottom center',
                       borderRadius: '6px',
                       backgroundImage: `url(${IMAGES[card.deck]})`,
                       backgroundSize: '1000% 700%',
@@ -4018,6 +4012,7 @@ export default function App() {
           )}
         </div>
       )}
+      
     </div>
   );
 }
