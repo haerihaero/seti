@@ -89,6 +89,12 @@ const TECH_SLOTS_CONFIG = {
 import initialSpaces from './spaces.json';
 let SPACES = JSON.parse(JSON.stringify(initialSpaces));
 
+import initialTechActions from './tech_actions.json';
+let TECH_ACTIONS = JSON.parse(JSON.stringify(initialTechActions));
+
+import initialTopSlots from './top_board_slots.json';
+let TOP_SLOTS = JSON.parse(JSON.stringify(initialTopSlots));
+
 const shouldShowDialSpaces = (dialNum, visibleDials) => {
   if (dialNum === 0) {
     return visibleDials.includes(0) && (visibleDials.length === 1 || visibleDials.length === 4);
@@ -147,11 +153,14 @@ const getTopmostSpaces = (ring1Angle, ring2Angle, ring3Angle, visibleDials) => {
       if (visibleDials && !visibleDials.includes(space.dial)) return;
       const pSec = getPhysicalSector(space, ring1Angle, ring2Angle, ring3Angle);
       const key = `${space.ring}-${pSec}`;
-      if (!grid[key] || grid[key].dial < space.dial) {
-         grid[key] = space;
+      
+      if (!grid[key] || space.dial > grid[key].maxDial) {
+         grid[key] = { maxDial: space.dial, spaces: [space] };
+      } else if (space.dial === grid[key].maxDial) {
+         grid[key].spaces.push(space);
       }
    });
-   return Object.values(grid);
+   return Object.values(grid).flatMap(g => g.spaces);
 };
 
 
@@ -175,6 +184,10 @@ const getWedgePath = (x, y, rIn, rOut, startAngle, endAngle) => {
 
 export default function App() {
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isTechEditMode, setIsTechEditMode] = useState(false);
+  const [isTopEditMode, setIsTopEditMode] = useState(false);
+  const [selectedTechActionId, setSelectedTechActionId] = useState(null);
+  const [selectedTopSlotId, setSelectedTopSlotId] = useState(null);
   const [visibleDials, setVisibleDials] = useState([0, 1, 2, 3]);
   const [selectedSpaceId, setSelectedSpaceId] = useState(null);
   const [, forceUpdate] = useState({});
@@ -446,7 +459,7 @@ export default function App() {
 
   // Top/Bottom Board layout aspect ratio & image scale states
   const [topBoardWidthRatio, setTopBoardWidthRatio] = useState(0.98);
-  const [topBoardImgHeight, setTopBoardImgHeight] = useState(63);
+  const [topBoardImgHeight, setTopBoardImgHeight] = useState(75);
   const [bottomBoardWidthRatio, setBottomBoardWidthRatio] = useState(1.906);
 
   // Alien Board track slots & reveal states
@@ -1164,16 +1177,188 @@ export default function App() {
 
 
 
+  const renderTopBoardSlotsOverlay = () => {
+    return TOP_SLOTS.map(slot => {
+      const isSelected = isTopEditMode && selectedTopSlotId === slot.id;
+      // In actual game, check if probe is placed here.
+      const hasProbe = false;
+      const isAvailable = true; // In actual game, determine if it's placeable
+
+      return (
+        <div 
+          key={slot.id}
+          title={slot.name}
+          onClick={(e) => {
+            if (isTopEditMode) {
+              e.stopPropagation();
+              setSelectedTopSlotId(slot.id);
+            } else if (isAvailable) {
+              e.stopPropagation();
+              if (slot.type === 'moon') {
+                alert(`${slot.name}: 이 위성에는 탐사선을 1개만 배치할 수 있습니다.`);
+              } else {
+                alert(`${slot.name}: 탐사선 배치`);
+              }
+            }
+          }}
+          style={{
+            position: 'absolute',
+            left: `${slot.left}%`,
+            top: `${slot.top}%`,
+            width: `${slot.width}%`,
+            height: `${slot.height}%`,
+            transform: 'translate(-50%, -50%)',
+            cursor: isTopEditMode || isAvailable ? 'pointer' : 'default',
+            border: isSelected ? '2px dashed var(--neon-gold)' : (isTopEditMode ? '1px dashed rgba(255,255,255,0.5)' : (hasProbe ? 'none' : '2px dotted rgba(255,255,255,0.4)')),
+            backgroundColor: isTopEditMode ? 'rgba(255, 170, 0, 0.2)' : 'transparent',
+            borderRadius: slot.shape === 'circle' ? '50%' : '8px',
+            zIndex: 30,
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            if (!isTopEditMode && !hasProbe && isAvailable) {
+              e.currentTarget.style.backgroundColor = 'rgba(255, 170, 0, 0.3)';
+              e.currentTarget.style.boxShadow = '0 0 10px rgba(255, 170, 0, 0.5)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!isTopEditMode) {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.boxShadow = 'none';
+            }
+          }}
+        />
+      );
+    });
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', padding: '16px', boxSizing: 'border-box', gap: '16px' }}>
 
       {/* Edit Mode Toggle & Panel */}
-      <button 
-        onClick={() => setIsEditMode(!isEditMode)}
-        style={{ position: 'fixed', top: '10px', right: '10px', zIndex: 9999, background: isEditMode ? 'var(--neon-magenta)' : 'var(--neon-cyan)', color: '#000', fontWeight: 'bold', padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-      >
-        {isEditMode ? '⚙️ 편집 모드 종료 (콘솔 출력)' : '⚙️ 보드판 편집 모드'}
-      </button>
+      <div style={{ position: 'fixed', top: '10px', right: '10px', zIndex: 9999, display: 'flex', gap: '8px' }}>
+        <button 
+          onClick={() => { setIsEditMode(!isEditMode); setIsTechEditMode(false); setIsTopEditMode(false); }}
+          style={{ background: isEditMode ? 'var(--neon-magenta)' : 'var(--neon-cyan)', color: '#000', fontWeight: 'bold', padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+        >
+          {isEditMode ? '⚙️ 보드판 편집 종료' : '⚙️ 보드판 편집'}
+        </button>
+        <button 
+          onClick={() => { setIsTechEditMode(!isTechEditMode); setIsEditMode(false); setIsTopEditMode(false); }}
+          style={{ background: isTechEditMode ? 'var(--neon-magenta)' : 'var(--neon-green)', color: '#000', fontWeight: 'bold', padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+        >
+          {isTechEditMode ? '⚙️ 기술판 편집 종료' : '⚙️ 기술판 편집'}
+        </button>
+        <button 
+          onClick={() => { setIsTopEditMode(!isTopEditMode); setIsEditMode(false); setIsTechEditMode(false); }}
+          style={{ background: isTopEditMode ? 'var(--neon-magenta)' : 'var(--neon-gold)', color: '#000', fontWeight: 'bold', padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+        >
+          {isTopEditMode ? '⚙️ 상단 보드 편집 종료' : '⚙️ 상단 보드 편집'}
+        </button>
+      </div>
+
+      {isTopEditMode && (
+        <div style={{ position: 'fixed', top: '50px', right: '10px', zIndex: 9999, background: 'rgba(0,0,0,0.9)', border: '1px solid var(--neon-magenta)', padding: '12px', borderRadius: '8px', color: 'white', width: '320px', fontSize: '12px', maxHeight: '80vh', overflowY: 'auto' }}>
+          <h4 style={{margin: '0 0 10px 0', color: 'var(--neon-gold)'}}>상단 보드 궤도선 편집 모드</h4>
+          <select 
+            value={selectedTopSlotId || ''} 
+            onChange={e => setSelectedTopSlotId(e.target.value)}
+            style={{width: '100%', padding: '6px', marginBottom: '12px', background: '#222', color: '#fff', border: '1px solid #555'}}
+          >
+            <option value="">편집할 궤도 칸 선택...</option>
+            {TOP_SLOTS.map(slot => (
+              <option key={slot.id} value={slot.id}>{slot.name}</option>
+            ))}
+          </select>
+          {selectedTopSlotId && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <label>Left 위치: {TOP_SLOTS.find(a=>a.id===selectedTopSlotId)?.left || 0}%</label>
+              <input type="range" min="0" max="100" step="0.1" value={TOP_SLOTS.find(a=>a.id===selectedTopSlotId)?.left || 0} onChange={e => {
+                const slot = TOP_SLOTS.find(a=>a.id===selectedTopSlotId);
+                if(slot) { slot.left = parseFloat(e.target.value); forceUpdate({}); }
+              }} />
+              <label>Top 위치: {TOP_SLOTS.find(a=>a.id===selectedTopSlotId)?.top || 0}%</label>
+              <input type="range" min="0" max="100" step="0.1" value={TOP_SLOTS.find(a=>a.id===selectedTopSlotId)?.top || 0} onChange={e => {
+                const slot = TOP_SLOTS.find(a=>a.id===selectedTopSlotId);
+                if(slot) { slot.top = parseFloat(e.target.value); forceUpdate({}); }
+              }} />
+              <label>크기 (Size): {TOP_SLOTS.find(a=>a.id===selectedTopSlotId)?.width || 0}%</label>
+              <input type="range" min="1" max="15" step="0.1" value={TOP_SLOTS.find(a=>a.id===selectedTopSlotId)?.width || 0} onChange={e => {
+                const slot = TOP_SLOTS.find(a=>a.id===selectedTopSlotId);
+                if(slot) { slot.width = parseFloat(e.target.value); slot.height = parseFloat(e.target.value); forceUpdate({}); }
+              }} />
+              <button 
+                onClick={() => {
+                  fetch('/api/save-top-board-slots', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(TOP_SLOTS)
+                  }).then(res => res.json()).then(data => {
+                    if(data.success) alert('저장 성공!'); else alert('저장 실패!');
+                  });
+                }}
+                style={{ marginTop: '10px', padding: '8px', background: 'var(--neon-gold)', color: '#000', fontWeight: 'bold', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+              >
+                현재 위치 설정 저장하기 💾
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {isTechEditMode && (
+        <div style={{ position: 'fixed', top: '50px', right: '10px', zIndex: 9999, background: 'rgba(0,0,0,0.9)', border: '1px solid var(--neon-magenta)', padding: '12px', borderRadius: '8px', color: 'white', width: '320px', fontSize: '12px', maxHeight: '80vh', overflowY: 'auto' }}>
+          <h4 style={{margin: '0 0 10px 0', color: 'var(--neon-cyan)'}}>기술판 액션 편집 모드</h4>
+          <select 
+            value={selectedTechActionId || ''} 
+            onChange={e => setSelectedTechActionId(e.target.value)}
+            style={{width: '100%', padding: '6px', marginBottom: '12px', background: '#222', color: '#fff', border: '1px solid #555'}}
+          >
+            <option value="">편집할 버튼 선택...</option>
+            {TECH_ACTIONS.map(action => (
+              <option key={action.id} value={action.id}>{action.name} ({action.id})</option>
+            ))}
+          </select>
+          {selectedTechActionId && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <label>Left 위치: {TECH_ACTIONS.find(a=>a.id===selectedTechActionId)?.left || 0}%</label>
+              <input type="range" min="0" max="100" step="0.5" value={TECH_ACTIONS.find(a=>a.id===selectedTechActionId)?.left || 0} onChange={e => {
+                const act = TECH_ACTIONS.find(a=>a.id===selectedTechActionId);
+                if(act) { act.left = parseFloat(e.target.value); forceUpdate({}); }
+              }} />
+              <label>Top 위치: {TECH_ACTIONS.find(a=>a.id===selectedTechActionId)?.top || 0}%</label>
+              <input type="range" min="0" max="100" step="0.5" value={TECH_ACTIONS.find(a=>a.id===selectedTechActionId)?.top || 0} onChange={e => {
+                const act = TECH_ACTIONS.find(a=>a.id===selectedTechActionId);
+                if(act) { act.top = parseFloat(e.target.value); forceUpdate({}); }
+              }} />
+              <label>너비 (Width): {TECH_ACTIONS.find(a=>a.id===selectedTechActionId)?.width || 0}%</label>
+              <input type="range" min="1" max="30" step="0.5" value={TECH_ACTIONS.find(a=>a.id===selectedTechActionId)?.width || 0} onChange={e => {
+                const act = TECH_ACTIONS.find(a=>a.id===selectedTechActionId);
+                if(act) { act.width = parseFloat(e.target.value); forceUpdate({}); }
+              }} />
+              <label>높이 (Height): {TECH_ACTIONS.find(a=>a.id===selectedTechActionId)?.height || 0}%</label>
+              <input type="range" min="1" max="30" step="0.5" value={TECH_ACTIONS.find(a=>a.id===selectedTechActionId)?.height || 0} onChange={e => {
+                const act = TECH_ACTIONS.find(a=>a.id===selectedTechActionId);
+                if(act) { act.height = parseFloat(e.target.value); forceUpdate({}); }
+              }} />
+              <button 
+                onClick={() => {
+                  fetch('/api/save-tech-actions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(TECH_ACTIONS)
+                  }).then(res => res.json()).then(data => {
+                    if(data.success) alert('저장 성공!'); else alert('저장 실패!');
+                  });
+                }}
+                style={{ marginTop: '10px', padding: '8px', background: 'var(--neon-green)', color: '#000', fontWeight: 'bold', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+              >
+                현재 위치 설정 저장하기 💾
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {isEditMode && (
         <div style={{ position: 'fixed', top: '50px', right: '10px', zIndex: 9999, background: 'rgba(0,0,0,0.9)', border: '1px solid var(--neon-magenta)', padding: '12px', borderRadius: '8px', color: 'white', width: '320px', fontSize: '12px', maxHeight: '80vh', overflowY: 'auto' }}>
@@ -1677,7 +1862,7 @@ export default function App() {
                   setAlienRightY(96.0);
                   setAlienRightScale(21.5);
                    setTopBoardWidthRatio(0.98);
-                  setTopBoardImgHeight(63);
+                  setTopBoardImgHeight(75);
                   setBottomBoardWidthRatio(1.906);
                   setLeftAlienTrack([null, null, null]);
                   setRightAlienTrack([null, null, null]);
@@ -2084,11 +2269,16 @@ export default function App() {
                            <svg viewBox="0 0 100 100" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 25, overflow: 'visible' }}>
                              {shouldShowDialSpaces(dialNum, visibleDials) && dialSpaces.map(space => {
                                const rOffset = space.radiusOffset || 0;
-                               const rIn = (space.ring === 1 ? 8 : space.ring === 2 ? alignRing2Radius - 5 : alignRing3Radius - 6) + rOffset;
+                               const rIn = (space.ring === 1 ? alignRing1Radius - 6 : space.ring === 2 ? alignRing2Radius - 5 : alignRing3Radius - 6) + rOffset;
                                const rOut = (space.ring === 1 ? alignRing1Radius + 5 : space.ring === 2 ? alignRing2Radius + 6 : alignRing3Radius + 6) + rOffset;
                                const angleDeg = space.angle + (space.angleOffset || 0);
-                               const startAngle = angleDeg - 22.5;
-                               const endAngle = angleDeg + 22.5;
+                               let spanHalf = 22.5;
+                               if (space.span !== undefined) spanHalf = space.span / 2;
+                               else if (space.dial === 1) spanHalf = 36; // 5 wedges = 72 deg
+                               else if (space.dial === 2) spanHalf = 22.5; // 8 wedges = 45 deg
+                               else if (space.dial === 3) spanHalf = 11.25; // 16 wedges = 22.5 deg
+                               const startAngle = angleDeg - spanHalf;
+                               const endAngle = angleDeg + spanHalf;
                                const isHighlighted = adjSpaces.some(s => s.id === space.id);
                                
                                return (
@@ -2143,7 +2333,8 @@ export default function App() {
                                     pointerEvents: 'auto',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    justifyContent: 'center'
+                                    justifyContent: 'center',
+                                    zIndex: 30
                                  }}>
                                     
                                     
@@ -2174,13 +2365,14 @@ export default function App() {
                                               setSelectedProbeId(prev => prev === probe.id ? null : probe.id);
                                             }
                                           }}
+                                          className={`physical-token ${isSelected ? 'selected' : ''}`}
                                           style={{
                                             position: 'absolute',
                                             transform: `translate(${px}px, ${py}px) ${isSelected ? 'scale(1.25)' : 'scale(1)'}`,
                                             width: probe.type === 'orbiter' ? '24px' : '20px',
                                             height: probe.type === 'orbiter' ? '24px' : '20px',
-                                            borderRadius: probe.type === 'orbiter' ? '50%' : '4px',
-                                            backgroundColor: '#0a0e1e',
+                                            borderRadius: probe.type === 'orbiter' ? '50%' : '50%', /* Made all tokens circular discs like physical board game */
+                                            background: `radial-gradient(circle at 30% 30%, #ffffff 0%, ${color} 40%, #111111 110%)`,
                                             color: color,
                                             fontSize: '11px',
                                             fontWeight: 'bold',
@@ -2188,13 +2380,8 @@ export default function App() {
                                             display: 'flex',
                                             justifyContent: 'center',
                                             alignItems: 'center',
-                                            boxShadow: isSelected 
-                                              ? `0 0 20px #fff, 0 0 10px ${color}, inset 0 0 6px ${color}` 
-                                              : `0 0 10px ${color}, inset 0 0 4px ${color}`,
-                                            border: isSelected ? '2.5px solid white' : `2px solid ${color}`,
                                             cursor: probe.playerId === activePlayerId ? 'pointer' : 'default',
                                             zIndex: isSelected ? 45 : 40,
-                                            transition: 'transform 0.15s ease'
                                           }}
                                           title={`Probe #${probe.id} (P${probe.playerId})`}
                                         >
@@ -2460,7 +2647,6 @@ export default function App() {
                   <div 
                     onClick={() => setZoomImage({ src: imgTopBoard, title: '세티 상단 보드 (Top Board)' })}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'scale(1)';
                       const container = document.getElementById('top-board-inner-container');
                       const btn = document.getElementById('alien-board-toggle-btn');
                       if (container && btn) {
@@ -2485,7 +2671,6 @@ export default function App() {
                       maxWidth: '100%',
                       alignSelf: 'center'
                     }}
-                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
                     title="클릭하여 확대 보기"
                   >
                     {/* Top Edge Hover Zone for auto-reveal */}
@@ -2494,7 +2679,7 @@ export default function App() {
                         const container = document.getElementById('top-board-inner-container');
                         const btn = document.getElementById('alien-board-toggle-btn');
                         if (container && btn) {
-                          container.style.transform = 'translateY(32%)';
+                          container.style.transform = 'translateY(55%)';
                           btn.innerHTML = '▼ 상단 보드 복귀';
                         }
                       }}
@@ -2510,11 +2695,11 @@ export default function App() {
                       onClick={(e) => {
                         e.stopPropagation();
                         const container = document.getElementById('top-board-inner-container');
-                        if (container.style.transform === 'translateY(32%)') {
+                        if (container.style.transform === 'translateY(55%)') {
                           container.style.transform = 'translateY(0%)';
                           e.currentTarget.innerHTML = '▲ 외계인 보드 보기';
                         } else {
-                          container.style.transform = 'translateY(32%)';
+                          container.style.transform = 'translateY(55%)';
                           e.currentTarget.innerHTML = '▼ 상단 보드 복귀';
                         }
                       }}
@@ -2553,26 +2738,32 @@ export default function App() {
                         transition: 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)',
                       }}
                     >
-                      <img 
-                        src={imgTopBoard} 
-                        alt="Top Board"
-                        onMouseEnter={() => {
-                          const container = document.getElementById('top-board-inner-container');
-                          const btn = document.getElementById('alien-board-toggle-btn');
-                          if (container && btn) {
-                            container.style.transform = 'translateY(0%)';
-                            btn.innerHTML = '▲ 외계인 보드 보기';
-                          }
-                        }}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          opacity: 0.85,
-                          borderRadius: '0 0 11px 11px',
-                          pointerEvents: 'auto'
-                        }}
-                      />
+                      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', overflow: 'hidden', borderRadius: '0 0 11px 11px' }}>
+                        <div style={{ position: 'relative', width: '100%' }}>
+                          <img 
+                            src={imgTopBoard} 
+                            alt="Top Board"
+                            onMouseEnter={() => {
+                              const container = document.getElementById('top-board-inner-container');
+                              const btn = document.getElementById('alien-board-toggle-btn');
+                              if (container && btn) {
+                                container.style.transform = 'translateY(0%)';
+                                btn.innerHTML = '▲ 외계인 보드 보기';
+                              }
+                            }}
+                            style={{
+                              width: '100%',
+                              height: 'auto',
+                              opacity: 0.85,
+                              pointerEvents: 'auto',
+                              display: 'block'
+                            }}
+                          />
+                          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+                            {renderTopBoardSlotsOverlay()}
+                          </div>
+                        </div>
+                      </div>
                       {/* Left Alien Hidden Board */}
                       <img
                         src={isLeftAlienRevealed ? imgAlienRevealed : imgAlienBoard}
@@ -3547,6 +3738,56 @@ export default function App() {
                 }}
               />
 
+              {/* Tech Board Action Buttons Overlay */}
+              {TECH_ACTIONS.map(action => {
+                const isAvailable = true; // TODO: Implement actual availability logic
+                const isSelected = isTechEditMode && selectedTechActionId === action.id;
+                
+                return (
+                  <div 
+                    key={action.id}
+                    title={`${action.name} (비용: ${action.cost})`}
+                    onClick={(e) => {
+                      if (isTechEditMode) {
+                        e.stopPropagation();
+                        setSelectedTechActionId(action.id);
+                      } else if (isAvailable) {
+                        e.stopPropagation();
+                        // Mock action execution for now
+                        console.log(`Action clicked: ${action.name}`);
+                      }
+                    }}
+                    style={{
+                      position: 'absolute',
+                      left: `${action.left}%`,
+                      top: `${action.top}%`,
+                      width: `${action.width}%`,
+                      height: `${action.height}%`,
+                      transform: 'translate(-50%, -50%)',
+                      cursor: isTechEditMode || isAvailable ? 'pointer' : 'not-allowed',
+                      border: isSelected ? '2px dashed var(--neon-magenta)' : (isTechEditMode ? '1px dashed rgba(255,255,255,0.5)' : 'none'),
+                      backgroundColor: isTechEditMode ? 'rgba(0, 229, 255, 0.2)' : 'transparent',
+                      backdropFilter: !isTechEditMode && !isAvailable ? 'brightness(0.5)' : 'none',
+                      transition: 'all 0.2s',
+                      zIndex: 30,
+                      borderRadius: action.shape === 'circle' ? '50%' : '8px',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isTechEditMode && isAvailable) {
+                        e.currentTarget.style.boxShadow = 'inset 0 0 15px rgba(0, 229, 255, 0.5), 0 0 10px rgba(0, 229, 255, 0.5)';
+                        e.currentTarget.style.transform = 'translate(-50%, -50%) translateY(-2px)';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isTechEditMode) {
+                        e.currentTarget.style.boxShadow = 'none';
+                        e.currentTarget.style.transform = 'translate(-50%, -50%)';
+                      }
+                    }}
+                  />
+                );
+              })}
+
               {/* Render active and empty tech slots dynamically from config */}
               {Object.entries(TECH_SLOTS_CONFIG).map(([key, config]) => {
                 const isActive = upgradedTechSlots[key];
@@ -3840,6 +4081,56 @@ export default function App() {
                     style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                   />
 
+                  {/* Tech Board Action Buttons Overlay */}
+                  {TECH_ACTIONS.map(action => {
+                    const isAvailable = true; // TODO: Implement actual availability logic
+                    const isSelected = isTechEditMode && selectedTechActionId === action.id;
+                    
+                    return (
+                      <div 
+                        key={action.id}
+                        title={`${action.name} (비용: ${action.cost})`}
+                        onClick={(e) => {
+                          if (isTechEditMode) {
+                            e.stopPropagation();
+                            setSelectedTechActionId(action.id);
+                          } else if (isAvailable) {
+                            e.stopPropagation();
+                            // Mock action execution for now
+                            console.log(`Action clicked: ${action.name}`);
+                          }
+                        }}
+                        style={{
+                          position: 'absolute',
+                          left: `${action.left}%`,
+                          top: `${action.top}%`,
+                          width: `${action.width}%`,
+                          height: `${action.height}%`,
+                          transform: 'translate(-50%, -50%)',
+                          cursor: isTechEditMode || isAvailable ? 'pointer' : 'not-allowed',
+                          border: isSelected ? '2px dashed var(--neon-magenta)' : (isTechEditMode ? '1px dashed rgba(255,255,255,0.5)' : 'none'),
+                          backgroundColor: isTechEditMode ? 'rgba(0, 229, 255, 0.2)' : 'transparent',
+                          backdropFilter: !isTechEditMode && !isAvailable ? 'brightness(0.5)' : 'none',
+                          transition: 'all 0.2s',
+                          zIndex: 30,
+                          borderRadius: action.shape === 'circle' ? '50%' : '8px',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isTechEditMode && isAvailable) {
+                            e.currentTarget.style.boxShadow = 'inset 0 0 15px rgba(0, 229, 255, 0.5), 0 0 10px rgba(0, 229, 255, 0.5)';
+                            e.currentTarget.style.transform = 'translate(-50%, -50%) translateY(-2px)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isTechEditMode) {
+                            e.currentTarget.style.boxShadow = 'none';
+                            e.currentTarget.style.transform = 'translate(-50%, -50%)';
+                          }
+                        }}
+                      />
+                    );
+                  })}
+
                   {/* Render active upgraded tokens as overlays on the Tech Board */}
                   {Object.entries(upgradedTechSlots).map(([key, isActive]) => {
                     if (!isActive) return null;
@@ -3996,18 +4287,28 @@ export default function App() {
               }}>
                 {zoomImage.title} (클릭하여 닫기)
               </div>
-              <img 
-                src={zoomImage.src} 
-                alt={zoomImage.title}
-                style={{
-                  maxWidth: '90vw',
-                  maxHeight: '80vh',
-                  objectFit: 'contain',
-                  borderRadius: '12px',
-                  border: '2px solid rgba(255,255,255,0.1)',
-                  boxShadow: '0 20px 50px rgba(0,0,0,0.8)'
-                }}
-              />
+              <div style={{ position: 'relative', display: 'inline-block', maxWidth: '90vw', maxHeight: '80vh' }}>
+                <img 
+                  src={zoomImage.src} 
+                  alt={zoomImage.title}
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    objectFit: 'contain',
+                    borderRadius: '12px',
+                    border: '2px solid rgba(255,255,255,0.1)',
+                    boxShadow: '0 20px 50px rgba(0,0,0,0.8)',
+                    display: 'block'
+                  }}
+                />
+                {zoomImage.src === imgTopBoard && (
+                  <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+                    <div style={{ position: 'relative', width: '100%', height: '100%', pointerEvents: 'auto' }}>
+                      {renderTopBoardSlotsOverlay()}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>

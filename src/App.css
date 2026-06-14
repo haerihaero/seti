@@ -96,3 +96,31 @@
   animation: pulse-slow 1.2s infinite alternate ease-in-out;
 }
 
+
+/* 3D Physical Board Game Token Styling */
+.physical-token {
+  box-shadow: 
+    inset -2px -2px 4px rgba(0, 0, 0, 0.5),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.8),
+    2px 3px 5px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.physical-token:hover {
+  transform: translateY(-2px) scale(1.1) !important;
+  box-shadow: 
+    inset -2px -2px 4px rgba(0, 0, 0, 0.5),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.8),
+    3px 5px 7px rgba(0, 0, 0, 0.7);
+}
+
+.physical-token.selected {
+  box-shadow: 
+    inset -2px -2px 4px rgba(0, 0, 0, 0.5),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.8),
+    0 0 15px currentColor,
+    0 4px 8px rgba(0, 0, 0, 0.7) !important;
+  border: 2.5px solid white !important;
+}
