@@ -1,0 +1,112 @@
+[
+  {
+    "id": "jupiter_orbit_1",
+    "name": "목성 궤도 1",
+    "left": 36.7,
+    "top": 19.7,
+    "width": 2.8,
+    "height": 2.8,
+    "shape": "circle",
+    "type": "orbit"
+  },
+  {
+    "id": "jupiter_orbit_2",
+    "name": "목성 궤도 2",
+    "left": 40,
+    "top": 23,
+    "width": 3,
+    "height": 3,
+    "shape": "circle",
+    "type": "orbit"
+  },
+  {
+    "id": "jupiter_orbit_3",
+    "name": "목성 궤도 3",
+    "left": 43.5,
+    "top": 25,
+    "width": 3,
+    "height": 3,
+    "shape": "circle",
+    "type": "orbit"
+  },
+  {
+    "id": "moon_europa",
+    "name": "유로파 (위성)",
+    "left": 49.3,
+    "top": 41,
+    "width": 3,
+    "height": 3,
+    "shape": "circle",
+    "type": "moon"
+  },
+  {
+    "id": "moon_callisto",
+    "name": "칼리스토 (위성)",
+    "left": 41.5,
+    "top": 48.5,
+    "width": 3,
+    "height": 3,
+    "shape": "circle",
+    "type": "moon"
+  },
+  {
+    "id": "moon_ganymede",
+    "name": "가니메데 (위성)",
+    "left": 47,
+    "top": 48.5,
+    "width": 3,
+    "height": 3,
+    "shape": "circle",
+    "type": "moon"
+  },
+  {
+    "id": "moon_enceladus",
+    "name": "엔셀라두스 (위성)",
+    "left": 73.5,
+    "top": 49,
+    "width": 3,
+    "height": 3,
+    "shape": "circle",
+    "type": "moon"
+  },
+  {
+    "id": "moon_titan",
+    "name": "타이탄 (위성)",
+    "left": 69.5,
+    "top": 55,
+    "width": 3,
+    "height": 3,
+    "shape": "circle",
+    "type": "moon"
+  },
+  {
+    "id": "moon_titania",
+    "name": "티타니아 (위성)",
+    "left": 86,
+    "top": 47,
+    "width": 3,
+    "height": 3,
+    "shape": "circle",
+    "type": "moon"
+  },
+  {
+    "id": "moon_triton",
+    "name": "트리톤 (위성)",
+    "left": 86,
+    "top": 80,
+    "width": 3,
+    "height": 3,
+    "shape": "circle",
+    "type": "moon"
+  },
+  {
+    "id": "moon_phobos_deimos",
+    "name": "포보스/데이모스 (위성)",
+    "left": 23,
+    "top": 64.5,
+    "width": 3,
+    "height": 3,
+    "shape": "circle",
+    "type": "moon"
+  }
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "id": "action_launch",
+    "name": "발사",
+    "left": 3.5,
+    "top": 32,
+    "width": 5.5,
+    "height": 10,
+    "shape": "rect",
+    "cost": "2c"
+  },
+  {
+    "id": "action_scan",
+    "name": "이동/스캔",
+    "left": 52.5,
+    "top": 31.5,
+    "width": 6,
+    "height": 10,
+    "shape": "rect",
+    "cost": "1c 1e"
+  },
+  {
+    "id": "action_probe",
+    "name": "탐사선",
+    "left": 41,
+    "top": 15,
+    "width": 6,
+    "height": 10,
+    "shape": "rect",
+    "cost": "3e"
+  },
+  {
+    "id": "action_landing",
+    "name": "위성착륙",
+    "left": 67,
+    "top": 15,
+    "width": 6,
+    "height": 10,
+    "shape": "rect",
+    "cost": "1c 2e"
+  },
+  {
+    "id": "action_temp",
+    "name": "임시",
+    "left": 80,
+    "top": 15,
+    "width": 6,
+    "height": 10,
+    "shape": "rect",
+    "cost": ""
+  },
+  {
+    "id": "action_rotate",
+    "name": "공전",
+    "left": 15,
+    "top": 45,
+    "width": 6,
+    "height": 10,
+    "shape": "rect",
+    "cost": "6e"
+  },
+  {
+    "id": "action_recover",
+    "name": "회수",
+    "left": 15,
+    "top": 60,
+    "width": 6,
+    "height": 10,
+    "shape": "rect",
+    "cost": "?"
+  },
+  {
+    "id": "action_blue",
+    "name": "청색연구",
+    "left": 80,
+    "top": 65,
+    "width": 6,
+    "height": 6,
+    "shape": "rect",
+    "cost": "1e"
+  }
+]
