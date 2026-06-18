@@ -76,7 +76,7 @@ export default function MainBoard() {
                   style={{
                     width: '100%',
                     height: '100%',
-                    objectFit: 'fill',
+                    objectFit: 'contain',
                   filter: 'drop-shadow(0 0 10px rgba(0,229,255,0.15))',
                     opacity: 0.85
                   }}

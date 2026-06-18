@@ -14,17 +14,15 @@ export default function BottomPlayerPanel() {
 
   return (
     <>
-      {/* Bottom Panel: Player Board and Cards in Hand */}
       <footer className="glass-panel" style={{
         height: '290px',
-        backgroundImage: `linear-gradient(rgba(10, 14, 30, 0.9), rgba(10, 14, 30, 0.9)), url(${IMAGES.playerBoard})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        background: 'linear-gradient(135deg, rgba(10, 15, 30, 0.95), rgba(5, 7, 15, 0.98))',
         padding: '12px 16px',
         display: 'flex',
         gap: '20px',
         alignItems: 'center',
         borderTop: '2px solid rgba(0, 229, 255, 0.3)',
+        boxShadow: '0 -5px 20px rgba(0, 0, 0, 0.5)',
         boxSizing: 'border-box'
       }}>
         

@@ -132,10 +132,19 @@ export function GameProvider({ children }) {
   const [ring2Angle, setRing2Angle] = useState(0);
   const [ring3Angle, setRing3Angle] = useState(0);
 
-  // Probe positions
   const [probes, setProbes] = useState([
     { id: 1, type: 'probe', spaceId: 'earth', playerId: 1 }
   ]);
+
+  const [toasts, setToasts] = useState([]);
+
+  const showToast = (msg, duration = 4000) => {
+    const id = Date.now() + Math.random();
+    setToasts(prev => [...prev, { id, msg }]);
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id));
+    }, duration);
+  };
 
   const [isSelectingIncomeTuck, setIsSelectingIncomeTuck] = useState(false);
 
@@ -281,10 +290,10 @@ export function GameProvider({ children }) {
   const [alienRightY, setAlienRightY] = useState(96.0);
   const [alienRightScale, setAlienRightScale] = useState(21.5);
 
-  // Top/Bottom Board layout aspect ratio & image scale states
   const [topBoardWidthRatio, setTopBoardWidthRatio] = useState(0.98);
   const [topBoardImgHeight, setTopBoardImgHeight] = useState(75);
   const [bottomBoardWidthRatio, setBottomBoardWidthRatio] = useState(1.906);
+  const [bottomBoardImgHeight, setBottomBoardImgHeight] = useState(80);
 
   // Alien Board track slots & reveal states
   const [leftAlienTrack, setLeftAlienTrack] = useState([null, null, null]);
@@ -513,7 +522,11 @@ export function GameProvider({ children }) {
       if (ring2Rotated && ring2ProbesCount > 0) {
         alertMsgs.push(`2번 궤도 ➡️ 3번 궤도 (${ring2ProbesCount}개)`);
       }
-      alert(`[공전 물리 작용] 원판 회전으로 인해 탐사선이 외곽 궤도로 밀려났습니다:\n${alertMsgs.join('\n')}`);
+      setTimeout(() => {
+        if (alertMsgs.length > 0) {
+          showToast(`[공전 물리 작용] 원판 회전으로 인해 탐사선이 밀려났습니다:\n${alertMsgs.join('\n')}`, 4000);
+        }
+      }, 1000);
     }
 
     setRing1Angle(newRing1Angle);
@@ -523,44 +536,46 @@ export function GameProvider({ children }) {
     
     if (nextStep === 0) {
       setRound(r => Math.min(r + 1, 5));
+      
+      // Process income from tucked cards for ALL players on round end (transition back to step 0)
+      setPlayersData(prev => {
+        const updated = { ...prev };
+        let alertedAny = false;
+        let msg = "공전 제어로 라운드가 진행되며 플레이어들의 수입을 정산했습니다:\n";
+        
+        [1, 2, 3, 4].forEach(pid => {
+          const p = updated[pid];
+          if (p.tuckedCards && p.tuckedCards.length > 0) {
+            let addedCredits = 0;
+            let addedEnergy = 0;
+            let addedData = 0;
+            p.tuckedCards.forEach(card => {
+              const income = getCardIncome(card.deck, card.idx);
+              addedCredits += income.credits;
+              addedEnergy += income.energy;
+              addedData += income.data;
+            });
+            
+            updated[pid] = {
+              ...p,
+              credits: Math.min(p.credits + addedCredits, 10),
+              energy: Math.min(p.energy + addedEnergy, 10),
+              dataCount: Math.min(p.dataCount + addedData, 6)
+            };
+            msg += `- 플레이어 ${pid}: 크레딧 +${addedCredits}, 에너지 +${addedEnergy}, 데이터 +${addedData}\n`;
+            alertedAny = true;
+          }
+        });
+        
+        if (alertedAny) {
+          setTimeout(() => {
+            showToast(msg, 6000);
+          }, 1000);
+        }
+        return updated;
+      });
     }
     setScore(s => s + 1); // VP gain for active player
-
-    // Process income from tucked cards for ALL players on orbit dial progression
-    setPlayersData(prev => {
-      const updated = { ...prev };
-      let alertedAny = false;
-      let msg = "공전 제어로 라운드가 진행되며 플레이어들의 수입을 정산했습니다:\n";
-      
-      [1, 2, 3, 4].forEach(pid => {
-        const p = updated[pid];
-        if (p.tuckedCards && p.tuckedCards.length > 0) {
-          let addedCredits = 0;
-          let addedEnergy = 0;
-          let addedData = 0;
-          p.tuckedCards.forEach(card => {
-            const income = getCardIncome(card.deck, card.idx);
-            addedCredits += income.credits;
-            addedEnergy += income.energy;
-            addedData += income.data;
-          });
-          
-          updated[pid] = {
-            ...p,
-            credits: Math.min(p.credits + addedCredits, 10),
-            energy: Math.min(p.energy + addedEnergy, 10),
-            dataCount: Math.min(p.dataCount + addedData, 6)
-          };
-          msg += `- 플레이어 ${pid}: 크레딧 +${addedCredits}, 에너지 +${addedEnergy}, 데이터 +${addedData}\n`;
-          alertedAny = true;
-        }
-      });
-      
-      if (alertedAny) {
-        alert(msg);
-      }
-      return updated;
-    });
   };
 
   const shuffleArray = (array) => {
@@ -618,6 +633,7 @@ export function GameProvider({ children }) {
         if (state.topBoardWidthRatio !== undefined) setTopBoardWidthRatio(parseFloat(state.topBoardWidthRatio));
         if (state.topBoardImgHeight !== undefined) setTopBoardImgHeight(parseInt(state.topBoardImgHeight));
         if (state.bottomBoardWidthRatio !== undefined) setBottomBoardWidthRatio(parseFloat(state.bottomBoardWidthRatio));
+        if (state.bottomBoardImgHeight !== undefined) setBottomBoardImgHeight(parseInt(state.bottomBoardImgHeight));
         
         if (state.leftAlienTrack !== undefined) setLeftAlienTrack(state.leftAlienTrack);
         if (state.rightAlienTrack !== undefined) setRightAlienTrack(state.rightAlienTrack);
@@ -702,6 +718,7 @@ export function GameProvider({ children }) {
       topBoardWidthRatio,
       topBoardImgHeight,
       bottomBoardWidthRatio,
+      bottomBoardImgHeight,
       leftAlienTrack,
       rightAlienTrack,
       leftAlienManualReveal,
@@ -765,6 +782,7 @@ export function GameProvider({ children }) {
       if (state.topBoardWidthRatio !== undefined) setTopBoardWidthRatio(parseFloat(state.topBoardWidthRatio));
       if (state.topBoardImgHeight !== undefined) setTopBoardImgHeight(parseInt(state.topBoardImgHeight));
       if (state.bottomBoardWidthRatio !== undefined) setBottomBoardWidthRatio(parseFloat(state.bottomBoardWidthRatio));
+      if (state.bottomBoardImgHeight !== undefined) setBottomBoardImgHeight(parseInt(state.bottomBoardImgHeight));
 
       if (state.leftAlienTrack !== undefined) setLeftAlienTrack(state.leftAlienTrack);
       if (state.rightAlienTrack !== undefined) setRightAlienTrack(state.rightAlienTrack);
@@ -1171,6 +1189,8 @@ export function GameProvider({ children }) {
       setTopBoardImgHeight,
       bottomBoardWidthRatio,
       setBottomBoardWidthRatio,
+      bottomBoardImgHeight,
+      setBottomBoardImgHeight,
       leftAlienTrack,
       setLeftAlienTrack,
       rightAlienTrack,
@@ -1243,7 +1263,9 @@ export function GameProvider({ children }) {
       applyScanBonus,
       addCardToHand,
       playCard,
-      renderTopBoardSlotsOverlay
+      renderTopBoardSlotsOverlay,
+      toasts,
+      showToast
     }}>
       {children}
     </GameContext.Provider>
