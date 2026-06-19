@@ -681,7 +681,7 @@ export function GameProvider({ children }) {
     }
   }, []);
 
-  const saveGameState = () => {
+  const saveGameState = (silent = false) => {
     const now = new Date();
     const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
     
@@ -736,7 +736,7 @@ export function GameProvider({ children }) {
     };
     localStorage.setItem('seti_game_state_v3', JSON.stringify(gameState));
     setLastSavedTime(timeStr);
-    alert("현재 원판 위치, 공전토큰 위치, 구역판 및 게임 상태가 저장되었습니다!");
+    if (!silent) alert("현재 원판 위치, 공전토큰 위치, 구역판 및 게임 상태가 저장되었습니다!");
   };
 
   const loadGameState = () => {

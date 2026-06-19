@@ -229,8 +229,8 @@
     "type": "mic",
     "color": "var(--neon-green)",
     "angle": 0,
-    "angleOffset": 67,
-    "radiusOffset": -6.9,
+    "angleOffset": -68,
+    "radiusOffset": -1.7,
     "planet": "mars"
   },
   {
@@ -241,8 +241,8 @@
     "type": "asteroid",
     "color": "red",
     "angle": 45,
-    "angleOffset": -22,
-    "radiusOffset": -7.7
+    "angleOffset": 68,
+    "radiusOffset": -1.9
   },
   {
     "id": "d2_r2_ast_2",
@@ -252,8 +252,8 @@
     "type": "asteroid",
     "color": "red",
     "angle": 90,
-    "angleOffset": 113,
-    "radiusOffset": -18
+    "angleOffset": -22,
+    "radiusOffset": -13.9
   },
   {
     "id": "comet",
@@ -331,8 +331,8 @@
     "type": "normal",
     "color": "black",
     "angle": 135,
-    "angleOffset": 68,
-    "radiusOffset": -7.3
+    "angleOffset": -68,
+    "radiusOffset": -1.1
   },
   {
     "id": "d2_slot_5",
@@ -343,7 +343,7 @@
     "color": "black",
     "angle": 180,
     "angleOffset": -68,
-    "radiusOffset": -18.6
+    "radiusOffset": -14.4
   },
   {
     "id": "d2_slot_6",
@@ -353,8 +353,8 @@
     "type": "normal",
     "color": "black",
     "angle": 225,
-    "angleOffset": 112,
-    "radiusOffset": -18.6
+    "angleOffset": 158,
+    "radiusOffset": -14.4
   },
   {
     "id": "d2_slot_7",
@@ -365,7 +365,7 @@
     "color": "black",
     "angle": 270,
     "angleOffset": 22,
-    "radiusOffset": -19.1
+    "radiusOffset": -13.7
   },
   {
     "id": "d2_slot_8",
@@ -375,8 +375,8 @@
     "type": "asteroid",
     "color": "red",
     "angle": 315,
-    "angleOffset": -22,
-    "radiusOffset": -18.9
+    "angleOffset": 24.5,
+    "radiusOffset": -14.1
   },
   {
     "id": "d3_slot_5",

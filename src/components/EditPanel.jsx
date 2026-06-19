@@ -9,7 +9,7 @@ import { shouldShowDialSpaces, getPhysicalSector, getAdjacentSpaces, findSpaceAt
 
 export default function EditPanel() {
   const {
-    setIsEditMode, isEditMode, setIsTechEditMode, setIsTopEditMode, isTechEditMode, isTopEditMode, selectedTopSlotId, setSelectedTopSlotId, TOP_SLOTS, selectedTechActionId, setSelectedTechActionId, TECH_ACTIONS, setVisibleDials, visibleDials, selectedSpaceId, setSelectedSpaceId, SPACES, updateSpaceField, forceUpdate
+    setIsEditMode, isEditMode, setIsTechEditMode, setIsTopEditMode, isTechEditMode, isTopEditMode, selectedTopSlotId, setSelectedTopSlotId, TOP_SLOTS, selectedTechActionId, setSelectedTechActionId, TECH_ACTIONS, setVisibleDials, visibleDials, selectedSpaceId, setSelectedSpaceId, SPACES, updateSpaceField, forceUpdate, saveGameState
   } = useGame();
 
   return (
@@ -68,6 +68,7 @@ export default function EditPanel() {
               }} />
               <button 
                 onClick={() => {
+                  saveGameState(true);
                   fetch('/api/save-top-board-slots', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -122,6 +123,7 @@ export default function EditPanel() {
               }} />
               <button 
                 onClick={() => {
+                  saveGameState(true);
                   fetch('/api/save-tech-actions', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -228,6 +230,7 @@ export default function EditPanel() {
           )}
 
           <button onClick={() => { 
+            saveGameState(true);
             const data = JSON.stringify(SPACES, null, 2);
             console.log(data);
             
